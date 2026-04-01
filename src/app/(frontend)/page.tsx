@@ -1,59 +1,139 @@
-import { headers as getHeaders } from 'next/headers.js'
-import Image from 'next/image'
 import { getPayload } from 'payload'
 import React from 'react'
-import { fileURLToPath } from 'url'
-
+import Link from 'next/link'
 import config from '@/payload.config'
 import './styles.css'
 
+const CATEGORY_LABELS: Record<string, string> = {
+  ai: 'Artificial Intelligence',
+  ds: 'Data Science',
+  de: 'Data Engineering',
+}
+
+const CATEGORY_ICONS: Record<string, string> = {
+  ai: '🤖',
+  ds: '📊',
+  de: '⚙️',
+}
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('it-IT', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 export default async function HomePage() {
-  const headers = await getHeaders()
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
-  const { user } = await payload.auth({ headers })
 
-  const fileURL = `vscode://file/${fileURLToPath(import.meta.url)}`
+  const { docs: articles } = await payload.find({
+    collection: 'articles',
+    where: { status: { equals: 'published' } },
+    sort: '-publishedAt',
+    limit: 30,
+  })
+
+  const featured = articles[0] ?? null
+  const rest = articles.slice(1)
+
+  const byCategory = {
+    ai: rest.filter((a) => a.category === 'ai'),
+    ds: rest.filter((a) => a.category === 'ds'),
+    de: rest.filter((a) => a.category === 'de'),
+  }
 
   return (
-    <div className="home">
-      <div className="content">
-        <picture>
-          <source srcSet="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg" />
-          <Image
-            alt="Payload Logo"
-            height={65}
-            src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-favicon.svg"
-            width={65}
-          />
-        </picture>
-        {!user && <h1>Welcome to your new project.</h1>}
-        {user && <h1>Welcome back, {user.email}</h1>}
-        <div className="links">
-          <a
-            className="admin"
-            href={payloadConfig.routes.admin}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Go to admin panel
-          </a>
-          <a
-            className="docs"
-            href="https://payloadcms.com/docs"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Documentation
-          </a>
+    <>
+      {/* HERO */}
+      <div className="home-hero">
+        <h1>
+          Le notizie su <span className="hero-accent">AI, Data Science</span>
+          <br />e Data Engineering
+        </h1>
+        <p>Il punto di riferimento italiano per professionisti dei dati e dell&apos;intelligenza artificiale.</p>
+      </div>
+
+      {/* FEATURED */}
+      {featured && (
+        <Link href={`/articles/${featured.slug}`} style={{ display: 'block' }}>
+          <div className="article-featured">
+            <div>
+              <div className="featured-label">In evidenza</div>
+              <div className="card-meta" style={{ marginBottom: '0.75rem' }}>
+                <span className={`badge badge-${featured.category}`}>
+                  {CATEGORY_LABELS[featured.category as string] ?? featured.category}
+                </span>
+                {featured.publishedAt && (
+                  <span className="card-date">{formatDate(featured.publishedAt as string)}</span>
+                )}
+              </div>
+              <div className="featured-title">{featured.title}</div>
+              {featured.excerpt && <div className="featured-excerpt">{featured.excerpt as string}</div>}
+              <span className="featured-cta">Leggi l&apos;articolo →</span>
+            </div>
+            <div className="featured-image-box">
+              {CATEGORY_ICONS[featured.category as string] ?? '📰'}
+            </div>
+          </div>
+        </Link>
+      )}
+
+      {/* SECTIONS PER CATEGORY */}
+      {(['ai', 'ds', 'de'] as const).map((cat) => {
+        const items = byCategory[cat]
+        if (items.length === 0) return null
+        return (
+          <div key={cat}>
+            <div className="section-header">
+              <h2>{CATEGORY_LABELS[cat]}</h2>
+              <div className="section-line" />
+              <Link href={`/${cat}`} className={`nav-link nav-${cat}`} style={{ fontSize: '0.75rem' }}>
+                Vedi tutti →
+              </Link>
+            </div>
+            <div className="articles-grid">
+              {items.slice(0, 3).map((article) => (
+                <Link key={article.id} href={`/articles/${article.slug}`}>
+                  <div className="article-card">
+                    <div className="card-meta">
+                      <span className={`badge badge-${cat}`}>{CATEGORY_LABELS[cat]}</span>
+                      {article.publishedAt && (
+                        <span className="card-date">{formatDate(article.publishedAt as string)}</span>
+                      )}
+                    </div>
+                    <div className="card-title">{article.title}</div>
+                    {article.excerpt && (
+                      <div className="card-excerpt">{article.excerpt as string}</div>
+                    )}
+                    <div className="card-footer">
+                      <span className="card-author">
+                        {(article.author as string) || 'Redazione'}
+                      </span>
+                      <span className={`card-read-${cat}`}>Leggi →</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )
+      })}
+
+      {/* EMPTY STATE */}
+      {articles.length === 0 && (
+        <div className="empty-state">
+          <h3>Nessun articolo pubblicato</h3>
+          <p>
+            Accedi all&apos;{' '}
+            <a href="/admin" style={{ color: 'var(--color-ai)' }}>
+              area admin
+            </a>{' '}
+            per pubblicare il primo articolo.
+          </p>
         </div>
-      </div>
-      <div className="footer">
-        <p>Update this page by editing</p>
-        <a className="codeLink" href={fileURL}>
-          <code>app/(frontend)/page.tsx</code>
-        </a>
-      </div>
-    </div>
+      )}
+    </>
   )
 }
