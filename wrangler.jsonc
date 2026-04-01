@@ -15,6 +15,12 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
+  "routes": [
+    {
+      "pattern": "new.ginnytech.it/*",
+      "zone_name": "ginnytech.it",
+    },
+  ],
   "d1_databases": [
     {
       "binding": "D1",
