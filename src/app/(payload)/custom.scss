@@ -1,0 +1,94 @@
+// GinnyTech — Payload Admin Custom Theme
+// Overrides Payload's default admin colors to match ginnytech.it branding
+
+:root {
+  // Primary brand accent → acid yellow
+  --theme-elevation-0:    #000000;
+  --theme-elevation-50:   #050505;
+  --theme-elevation-100:  #0a0a0a;
+  --theme-elevation-150:  #0f0f0f;
+  --theme-elevation-200:  #141414;
+  --theme-elevation-250:  #1a1a1a;
+  --theme-elevation-300:  #1f1f1f;
+  --theme-elevation-400:  #282828;
+  --theme-elevation-500:  #333333;
+  --theme-elevation-750:  #555555;
+  --theme-elevation-800:  #666666;
+  --theme-elevation-850:  #808080;
+  --theme-elevation-900:  #aaaaaa;
+  --theme-elevation-950:  #cccccc;
+  --theme-elevation-1000: #ffffff;
+
+  // Accent color: acid yellow
+  --theme-success-50:  rgba(204, 255, 0, 0.1);
+  --theme-success-100: rgba(204, 255, 0, 0.2);
+  --theme-success-500: #ccff00;
+  --theme-success-600: #b3e600;
+
+  // Use acid yellow as primary action color
+  --theme-color-base:        #ccff00;
+  --theme-color-base-hover:  #b3e600;
+
+  // Text on accent
+  --theme-color-base-text:   #000000;
+}
+
+// Logo area top bar
+.nav__header {
+  a[href="/admin"] {
+    &::before {
+      content: "GinnyTech";
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.03em;
+      color: #ccff00;
+    }
+  }
+}
+
+// Primary buttons → acid yellow
+.btn--style-primary,
+.btn[style*="--theme-color-base"] {
+  background-color: #ccff00 !important;
+  color: #000 !important;
+  border-color: #ccff00 !important;
+
+  &:hover {
+    background-color: #b3e600 !important;
+    border-color: #b3e600 !important;
+  }
+}
+
+// Active nav items
+.nav__link--active,
+.nav__link:hover {
+  color: #ccff00 !important;
+}
+
+// Collection list selected state
+.table__row--selected {
+  background: rgba(204, 255, 0, 0.06) !important;
+}
+
+// Focus rings
+*:focus-visible {
+  outline-color: rgba(204, 255, 0, 0.5) !important;
+}
+
+// Highlight selected checkbox
+input[type="checkbox"]:checked {
+  accent-color: #ccff00;
+}
+
+// Field labels
+.field-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+// Status badges in list
+.pill--style-success,
+[class*="status--published"] {
+  background: rgba(204, 255, 0, 0.12) !important;
+  color: #ccff00 !important;
+  border-color: rgba(204, 255, 0, 0.25) !important;
+}

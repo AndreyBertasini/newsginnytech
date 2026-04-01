@@ -15,6 +15,10 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
+  // Public environment variables (available to the client bundle)
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://news.ginnytech.it",
+  },
   "d1_databases": [
     {
       "binding": "D1",

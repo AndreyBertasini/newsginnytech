@@ -99,6 +99,61 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+/* ─── JSON-LD ────────────────────────────────────────────────── */
+function ArticleJsonLd({
+  title,
+  excerpt,
+  slug,
+  publishedAt,
+  updatedAt,
+  author,
+  coverUrl,
+}: {
+  title: string
+  excerpt?: string | null
+  slug: string
+  publishedAt?: string | null
+  updatedAt: string
+  author?: string | null
+  coverUrl?: string | null
+}) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: title,
+    description: excerpt ?? undefined,
+    url: `${SITE_URL}/news/${slug}`,
+    datePublished: publishedAt ?? updatedAt,
+    dateModified: updatedAt,
+    author: {
+      '@type': 'Person',
+      name: author ?? 'Andrii Dyshkantiuk',
+      url: 'https://www.linkedin.com/in/andrii-dyshkantiuk/',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'GinnyTech',
+      url: 'https://ginnytech.it',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://ginnytech.it/ginni.png',
+      },
+    },
+    ...(coverUrl ? { image: coverUrl } : {}),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${SITE_URL}/news/${slug}`,
+    },
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  )
+}
+
 /* ─── PAGE ───────────────────────────────────────────────────── */
 export default async function NewsArticlePage({ params }: Props) {
   const { slug } = await params
@@ -220,6 +275,16 @@ export default async function NewsArticlePage({ params }: Props) {
             X / Twitter
           </a>
         </div>
+
+        <ArticleJsonLd
+          title={item.title}
+          excerpt={item.excerpt}
+          slug={item.slug}
+          publishedAt={item.publishedAt}
+          updatedAt={item.updatedAt}
+          author={item.author}
+          coverUrl={cover?.url ?? null}
+        />
       </article>
 
       {related.length > 0 && (

@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { MobileMenu } from '@/components/MobileMenu'
 import './styles.css'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://news.ginnytech.it'
@@ -72,15 +73,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="https://ginnytech.it/course" target="_blank" rel="noopener noreferrer">
                 Corso
               </Link>
-              <Link href="/news" className="active">
-                News
-              </Link>
+              <Link href="/news">News</Link>
               <Link
                 href="https://ginnytech.it/perche-questo-corso"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Informazioni
+              </Link>
+              <Link href="/cerca" aria-label="Cerca">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" style={{ width: 16, height: 16, verticalAlign: 'middle' }}>
+                  <circle cx="9" cy="9" r="6" />
+                  <path d="M14 14l4 4" />
+                </svg>
               </Link>
             </nav>
 
@@ -101,6 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 Prenota una call
               </Link>
+              <MobileMenu />
             </div>
           </div>
         </header>
