@@ -30,12 +30,18 @@ export default async function HomePage() {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
-  const { docs: articles } = await payload.find({
-    collection: 'articles',
-    where: { status: { equals: 'published' } },
-    sort: '-publishedAt',
-    limit: 30,
-  })
+  let articles: import('@/payload-types').Article[] = []
+  try {
+    const result = await payload.find({
+      collection: 'articles',
+      where: { status: { equals: 'published' } },
+      sort: '-publishedAt',
+      limit: 30,
+    })
+    articles = result.docs
+  } catch (_e) {
+    // DB not ready yet (migration in progress) — show empty state
+  }
 
   const featured = articles[0] ?? null
   const rest = articles.slice(1)
