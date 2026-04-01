@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import config from '@/payload.config'
+import type { News, Media } from '@/payload-types'
 import { RichText } from '@/components/RichText'
 
 export const revalidate = 60
@@ -32,6 +33,13 @@ function BackIcon() {
       <path d="M10 3L5 8l5 5" />
     </svg>
   )
+}
+
+function getCover(coverImage: News['coverImage']): { url: string; alt: string } | null {
+  if (!coverImage || typeof coverImage === 'number') return null
+  const media = coverImage as Media
+  if (!media.url) return null
+  return { url: media.url, alt: media.alt ?? '' }
 }
 
 type Props = {
@@ -74,9 +82,11 @@ export default async function NewsArticlePage({ params }: Props) {
   const item = docs[0]
   if (!item) notFound()
 
-  const initials = (item.author ?? 'A D')
+  const cover = getCover(item.coverImage)
+
+  const initials = (item.author ?? 'Andrii Dyshkantiuk')
     .split(' ')
-    .map((w: string) => w[0])
+    .map((w: string) => w[0] ?? '')
     .join('')
     .toUpperCase()
     .slice(0, 2)
@@ -110,25 +120,18 @@ export default async function NewsArticlePage({ params }: Props) {
         </div>
       </header>
 
-      {item.coverImage &&
-        typeof item.coverImage === 'object' &&
-        'url' in item.coverImage &&
-        item.coverImage.url && (
-          <div className="article-cover">
-            <Image
-              src={item.coverImage.url as string}
-              alt={
-                typeof item.coverImage === 'object' && 'alt' in item.coverImage
-                  ? (item.coverImage.alt as string)
-                  : item.title
-              }
-              width={1200}
-              height={675}
-              priority
-              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-            />
-          </div>
-        )}
+      {cover && (
+        <div className="article-cover">
+          <Image
+            src={cover.url}
+            alt={cover.alt || item.title}
+            width={1200}
+            height={675}
+            priority
+            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+          />
+        </div>
+      )}
 
       <div className="article-content">
         <RichText content={item.content} />

@@ -3,6 +3,7 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import config from '@/payload.config'
+import type { News, Media } from '@/payload-types'
 
 export const metadata = {
   title: 'News — GinnyTech',
@@ -47,6 +48,17 @@ function ImagePlaceholder() {
       </svg>
     </div>
   )
+}
+
+function getCoverUrl(coverImage: News['coverImage']): string | null {
+  if (!coverImage) return null
+  if (typeof coverImage === 'number') return null
+  return (coverImage as Media).url ?? null
+}
+
+function getCoverAlt(coverImage: News['coverImage'], fallback: string): string {
+  if (!coverImage || typeof coverImage === 'number') return fallback
+  return (coverImage as Media).alt ?? fallback
 }
 
 export default async function NewsPage() {
@@ -101,52 +113,49 @@ export default async function NewsPage() {
           </div>
         ) : (
           <div className="news-grid">
-            {newsItems.map((item) => (
-              <Link key={item.id} href={`/news/${item.slug}`} className="news-card">
-                <div className="news-card-image">
-                  {item.coverImage &&
-                  typeof item.coverImage === 'object' &&
-                  'url' in item.coverImage &&
-                  item.coverImage.url ? (
-                    <Image
-                      src={item.coverImage.url}
-                      alt={
-                        typeof item.coverImage === 'object' && 'alt' in item.coverImage
-                          ? (item.coverImage.alt as string)
-                          : item.title
-                      }
-                      width={600}
-                      height={338}
-                      style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                    />
-                  ) : (
-                    <ImagePlaceholder />
-                  )}
-                </div>
-
-                <div className="news-card-body">
-                  <div className="news-card-meta">
-                    {item.category && (
-                      <span className="news-category">
-                        {CATEGORY_LABELS[item.category] ?? item.category}
-                      </span>
-                    )}
-                    {item.publishedAt && (
-                      <span className="news-date">{formatDate(item.publishedAt)}</span>
+            {newsItems.map((item) => {
+              const coverUrl = getCoverUrl(item.coverImage)
+              const coverAlt = getCoverAlt(item.coverImage, item.title)
+              return (
+                <Link key={item.id} href={`/news/${item.slug}`} className="news-card">
+                  <div className="news-card-image">
+                    {coverUrl ? (
+                      <Image
+                        src={coverUrl}
+                        alt={coverAlt}
+                        width={600}
+                        height={338}
+                        style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                      />
+                    ) : (
+                      <ImagePlaceholder />
                     )}
                   </div>
 
-                  <h2 className="news-card-title">{item.title}</h2>
+                  <div className="news-card-body">
+                    <div className="news-card-meta">
+                      {item.category && (
+                        <span className="news-category">
+                          {CATEGORY_LABELS[item.category] ?? item.category}
+                        </span>
+                      )}
+                      {item.publishedAt && (
+                        <span className="news-date">{formatDate(item.publishedAt)}</span>
+                      )}
+                    </div>
 
-                  {item.excerpt && <p className="news-card-excerpt">{item.excerpt}</p>}
+                    <h2 className="news-card-title">{item.title}</h2>
 
-                  <span className="news-card-cta">
-                    Leggi articolo
-                    <ArrowIcon />
-                  </span>
-                </div>
-              </Link>
-            ))}
+                    {item.excerpt && <p className="news-card-excerpt">{item.excerpt}</p>}
+
+                    <span className="news-card-cta">
+                      Leggi articolo
+                      <ArrowIcon />
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         )}
       </section>

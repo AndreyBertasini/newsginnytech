@@ -1,17 +1,31 @@
 import React, { Fragment } from 'react'
 
+type TextFormatFlags = {
+  bold?: boolean
+  italic?: boolean
+  underline?: boolean
+  strikethrough?: boolean
+  code?: boolean
+}
+
 type LexicalNode = {
   type: string
   version?: number
   tag?: string
   format?: number | string
+  listType?: 'bullet' | 'number' | 'check'
   indent?: number
   direction?: string
   children?: LexicalNode[]
   text?: string
   url?: string
   newTab?: boolean
-  value?: { url?: string; alt?: string }
+  checked?: boolean
+  fields?: {
+    url?: string
+    newTab?: boolean
+    linkType?: string
+  }
 }
 
 type LexicalRoot = {
@@ -25,103 +39,107 @@ type LexicalRoot = {
   }
 }
 
+const FORMAT_BOLD = 1
+const FORMAT_ITALIC = 2
+const FORMAT_STRIKETHROUGH = 4
+const FORMAT_UNDERLINE = 8
+const FORMAT_CODE = 16
+
 function serializeText(node: LexicalNode): React.ReactNode {
-  if (!node.text) return null
+  if (node.text === undefined || node.text === null) return null
 
-  let content: React.ReactNode = node.text
+  const text = node.text
+  if (text === '') return null
 
-  const format = typeof node.format === 'number' ? node.format : 0
+  const fmt = typeof node.format === 'number' ? node.format : 0
+  let content: React.ReactNode = text
 
-  if (format & 1) content = <strong>{content}</strong>
-  if (format & 2) content = <em>{content}</em>
-  if (format & 8) content = <u style={{ textDecoration: 'underline' }}>{content}</u>
-  if (format & 4) content = <s>{content}</s>
-  if (format & 16) content = <code>{content}</code>
+  if (fmt & FORMAT_CODE) return <code key="code">{text}</code>
+  if (fmt & FORMAT_BOLD) content = <strong>{content}</strong>
+  if (fmt & FORMAT_ITALIC) content = <em>{content}</em>
+  if (fmt & FORMAT_STRIKETHROUGH) content = <s>{content}</s>
+  if (fmt & FORMAT_UNDERLINE) content = <u style={{ textDecoration: 'underline' }}>{content}</u>
 
   return content
+}
+
+function serializeChildren(children: LexicalNode[] | undefined): React.ReactNode {
+  if (!children) return null
+  return children.map((child, i) => (
+    <Fragment key={i}>{serializeNode(child, i)}</Fragment>
+  ))
 }
 
 function serializeNode(node: LexicalNode, index: number): React.ReactNode {
   switch (node.type) {
     case 'text':
-      return <Fragment key={index}>{serializeText(node)}</Fragment>
+      return serializeText(node)
+
+    case 'tab':
+      return '\t'
 
     case 'linebreak':
-      return <br key={index} />
+      return <br />
 
     case 'paragraph':
-      return (
-        <p key={index}>
-          {node.children?.map((child, i) => serializeNode(child, i))}
-        </p>
-      )
+      if (!node.children || node.children.length === 0) return <br />
+      return <p>{serializeChildren(node.children)}</p>
 
-    case 'heading':
-      const Tag = (node.tag as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') ?? 'h2'
-      return (
-        <Tag key={index}>
-          {node.children?.map((child, i) => serializeNode(child, i))}
-        </Tag>
-      )
+    case 'heading': {
+      const Tag = (node.tag ?? 'h2') as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+      return <Tag>{serializeChildren(node.children)}</Tag>
+    }
 
-    case 'list':
-      if (node.tag === 'ol') {
-        return (
-          <ol key={index}>
-            {node.children?.map((child, i) => serializeNode(child, i))}
-          </ol>
-        )
+    case 'list': {
+      const isOrdered = node.listType === 'number'
+      if (isOrdered) {
+        return <ol>{serializeChildren(node.children)}</ol>
       }
-      return (
-        <ul key={index}>
-          {node.children?.map((child, i) => serializeNode(child, i))}
-        </ul>
-      )
+      return <ul>{serializeChildren(node.children)}</ul>
+    }
 
     case 'listitem':
-      return (
-        <li key={index}>
-          {node.children?.map((child, i) => serializeNode(child, i))}
-        </li>
-      )
+      return <li>{serializeChildren(node.children)}</li>
 
     case 'quote':
-      return (
-        <blockquote key={index}>
-          {node.children?.map((child, i) => serializeNode(child, i))}
-        </blockquote>
-      )
+      return <blockquote>{serializeChildren(node.children)}</blockquote>
 
     case 'code':
       return (
-        <pre key={index}>
-          <code>{node.children?.map((child, i) => serializeNode(child, i))}</code>
+        <pre>
+          <code>{serializeChildren(node.children)}</code>
         </pre>
       )
 
     case 'link':
-    case 'autolink':
+    case 'autolink': {
+      const href = node.fields?.url ?? node.url ?? '#'
+      const newTab = node.fields?.newTab ?? node.newTab ?? false
       return (
-        <a
-          key={index}
-          href={node.url ?? '#'}
-          target={node.newTab ? '_blank' : undefined}
-          rel={node.newTab ? 'noopener noreferrer' : undefined}
-        >
-          {node.children?.map((child, i) => serializeNode(child, i))}
+        <a href={href} target={newTab ? '_blank' : undefined} rel={newTab ? 'noopener noreferrer' : undefined}>
+          {serializeChildren(node.children)}
         </a>
       )
+    }
 
     case 'horizontalrule':
-      return <hr key={index} />
+      return <hr />
+
+    case 'image': {
+      const src = (node as unknown as { src?: string; altText?: string; width?: number; height?: number }).src
+      const alt = (node as unknown as { altText?: string }).altText ?? ''
+      if (!src) return null
+      return (
+        <figure style={{ margin: '1.5em 0' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt={alt} style={{ maxWidth: '100%', borderRadius: '8px' }} />
+        </figure>
+      )
+    }
 
     default:
       if (node.children) {
-        return (
-          <Fragment key={index}>
-            {node.children.map((child, i) => serializeNode(child, i))}
-          </Fragment>
-        )
+        return <>{serializeChildren(node.children)}</>
       }
       return null
   }
@@ -131,12 +149,13 @@ export function RichText({ content }: { content: unknown }) {
   if (!content) return null
 
   const lexical = content as LexicalRoot
-
   if (!lexical?.root?.children) return null
 
   return (
     <>
-      {lexical.root.children.map((node, i) => serializeNode(node, i))}
+      {lexical.root.children.map((node, i) => (
+        <Fragment key={i}>{serializeNode(node, i)}</Fragment>
+      ))}
     </>
   )
 }
