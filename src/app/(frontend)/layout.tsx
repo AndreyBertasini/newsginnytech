@@ -1,10 +1,39 @@
 import React from 'react'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import './styles.css'
 
-export const metadata = {
-  description: 'Le ultime news da GinnyTech — MarTech, Analytics, Marketing Digitale.',
-  title: 'News — GinnyTech',
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://news.ginnytech.it'
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'News — GinnyTech',
+    template: '%s — GinnyTech',
+  },
+  description: 'Le ultime news su MarTech, Analytics e Marketing Digitale da GinnyTech.',
+  openGraph: {
+    type: 'website',
+    locale: 'it_IT',
+    siteName: 'GinnyTech News',
+    images: [
+      {
+        url: 'https://ginnytech.it/ginni.png',
+        width: 1200,
+        height: 630,
+        alt: 'GinnyTech',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@ginnytech',
+  },
+  alternates: {
+    types: {
+      'application/rss+xml': `${SITE_URL}/rss.xml`,
+    },
+  },
 }
 
 function LogoIcon() {
@@ -20,6 +49,14 @@ function LogoIcon() {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it">
+      <head>
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="GinnyTech News RSS"
+          href="/rss.xml"
+        />
+      </head>
       <body>
         <header className="site-header">
           <div className="inner">

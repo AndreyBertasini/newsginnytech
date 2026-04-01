@@ -249,6 +249,7 @@ a:hover {
 }
 
 .filter-tag {
+  font-family: var(--font-sans);
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -260,12 +261,73 @@ a:hover {
   text-transform: capitalize;
   transition: all 0.2s;
   text-decoration: none;
+  cursor: pointer;
+  line-height: 1.4;
 }
 
-.filter-tag:hover {
+.filter-tag:hover,
+.filter-tag--active {
   background: rgba(204, 255, 0, 0.1);
   border-color: rgba(204, 255, 0, 0.3);
   color: var(--color-acid-yellow);
+}
+
+/* ─── PAGINATION ─────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 48px;
+}
+
+.pagination-btn {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-white-10);
+  background: transparent;
+  color: var(--color-white-60);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.pagination-btn:hover {
+  border-color: rgba(204, 255, 0, 0.3);
+  color: var(--color-acid-yellow);
+  background: rgba(204, 255, 0, 0.06);
+}
+
+.pagination-btn--active {
+  background: var(--color-acid-yellow);
+  border-color: var(--color-acid-yellow);
+  color: #000;
+}
+
+.pagination-btn--active:hover {
+  background: var(--color-acid-yellow-hover);
+  border-color: var(--color-acid-yellow-hover);
+  color: #000;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-dots {
+  color: var(--color-white-40);
+  font-size: 0.875rem;
+  padding: 0 4px;
 }
 
 /* ─── NEWS GRID ────────────────────────────────────────────── */
@@ -797,4 +859,98 @@ a:hover {
 .not-found p {
   color: var(--color-white-60);
   margin-bottom: 32px;
+}
+
+/* ─── SHARE BAR ──────────────────────────────────────────────── */
+.article-share {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-white-06);
+  flex-wrap: wrap;
+}
+
+.article-share-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-white-40);
+  margin-right: 4px;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-white-60);
+  border: 1px solid var(--color-white-10);
+  border-radius: 8px;
+  padding: 7px 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.share-btn:hover {
+  color: var(--color-acid-yellow);
+  border-color: rgba(204, 255, 0, 0.3);
+  background: rgba(204, 255, 0, 0.05);
+}
+
+/* ─── RELATED ARTICLES ───────────────────────────────────────── */
+.related-section {
+  border-top: 1px solid var(--color-white-06);
+  padding: 60px 24px 80px;
+}
+
+.related-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.related-header {
+  margin-bottom: 32px;
+}
+
+.related-header .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-acid-yellow);
+}
+
+.related-header .label::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-acid-yellow);
+  box-shadow: 0 0 8px var(--color-acid-yellow);
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1024px) {
+  .related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .related-grid {
+    grid-template-columns: 1fr;
+  }
 }
