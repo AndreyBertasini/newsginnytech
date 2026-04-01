@@ -5,6 +5,8 @@ import Link from 'next/link'
 import config from '@/payload.config'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 const CATEGORY_LABELS: Record<string, string> = {
   ai: 'Artificial Intelligence',
   ds: 'Data Science',

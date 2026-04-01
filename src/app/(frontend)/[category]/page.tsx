@@ -5,6 +5,8 @@ import Link from 'next/link'
 import config from '@/payload.config'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 const CATEGORIES = {
   ai: {
     label: 'Artificial Intelligence',
@@ -28,10 +30,6 @@ function formatDate(dateStr: string) {
     month: 'short',
     year: 'numeric',
   })
-}
-
-export async function generateStaticParams() {
-  return Object.keys(CATEGORIES).map((cat) => ({ category: cat }))
 }
 
 export async function generateMetadata({

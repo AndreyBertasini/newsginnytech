@@ -1,6 +1,8 @@
 import { getPayload } from 'payload'
 import React from 'react'
 import Link from 'next/link'
+export const dynamic = 'force-dynamic'
+
 import config from '@/payload.config'
 import './styles.css'
 
@@ -127,9 +129,9 @@ export default async function HomePage() {
           <h3>Nessun articolo pubblicato</h3>
           <p>
             Accedi all&apos;{' '}
-            <a href="/admin" style={{ color: 'var(--color-ai)' }}>
+            <Link href="/admin" style={{ color: 'var(--color-ai)' }}>
               area admin
-            </a>{' '}
+            </Link>{' '}
             per pubblicare il primo articolo.
           </p>
         </div>

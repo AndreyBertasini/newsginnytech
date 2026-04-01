@@ -31,7 +31,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <footer className="site-footer">
           <div className="footer-inner">
             <p>© {new Date().getFullYear()} GinnyTech News · AI · Data Science · Data Engineering</p>
-            <a href="/admin" className="footer-admin">Admin</a>
+            <Link href="/admin" className="footer-admin">Admin</Link>
           </div>
         </footer>
       </body>
